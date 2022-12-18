@@ -1,0 +1,9 @@
+# Generic
+node_modules
+
+# Custom folders
+emblems/*.emblem
+
+# IDE/Editor/Settings folders
+.vscode/*
+!.vscode/launch.json
