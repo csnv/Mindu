@@ -3,6 +3,7 @@ import Jimp from "jimp";
 import { GifFrame, GifUtil } from "gifwrap";
 import { existsSync, mkdirSync } from "fs";
 import { writeFile, readFile } from 'fs/promises';
+import { escape as esc } from "mysql";
 
 import Auth from "../utils/auth";
 import Config from '../config/webserver';
@@ -50,8 +51,8 @@ router.post('/download', async (req: Request, res: Response, next: NextFunction)
     try {
         results = await DBConn.query(`
             SELECT version, file_type
-            FROM ${tables.guild_emblems}
-            WHERE (guild_id = ${guildId} AND world_name = '${worldName}')
+            FROM \`${tables.guild_emblems}\`
+            WHERE (guild_id = ${esc(guildId)} AND world_name = ${esc(worldName)})
         `);
     } catch (error: any) {
         console.error(`emblem-download: Error retrieving emblem info for guild_id ${guildId}`, error.message);
@@ -70,6 +71,12 @@ router.post('/download', async (req: Request, res: Response, next: NextFunction)
         'GIF': 'image/gif'
     };
     const mimeType = contentByFileType[fileType];
+
+    if (!Config.server.worlds.includes(worldName)) {
+        console.error(`emblem-download: Wrong worldname request from token ${req.body['AuthToken']}`);
+        ResponseMessage.sendError(res);
+        return;
+    }
     
     if (!mimeType) {
         console.error("emblem-download: Invalid image type stored in DB.");
@@ -102,7 +109,7 @@ router.post('/upload', async (req: Request, res: Response, next: NextFunction) =
         return;
     }
 
-    if (!Config.web.change_emblem_woe) { // Cannot change emblem during woe
+    if (!await Auth.isGuildMaster(req)) {
         ResponseMessage.sendError(res);
         return;
     }
@@ -119,6 +126,7 @@ router.post('/upload', async (req: Request, res: Response, next: NextFunction) =
     }
 
     const image = (req.files as Express.Multer.File[])?.[0];
+    
 
     if (!image || image.fieldname !== 'Img') {
         console.warn("emblem-upload: No property 'Img' found in request.");
@@ -133,6 +141,12 @@ router.post('/upload', async (req: Request, res: Response, next: NextFunction) =
     const guildId = req.body['GDID'];
     const worldName = req.body['WorldName'];
     const imageType = req.body['ImgType'];
+
+    if (!Config.server.worlds.includes(worldName)) {
+        console.error(`emblem-upload: Wrong worldname request from token ${req.body['AuthToken']}`);
+        ResponseMessage.sendError(res);
+        return;
+    }
 
     if (['GIF', 'BMP'].indexOf(imageType) === -1) {
         console.error("emblem-upload: Invalid image type.");
@@ -151,8 +165,8 @@ router.post('/upload', async (req: Request, res: Response, next: NextFunction) =
         // Retrieve version from DB
         results = await DBConn.query(`
             SELECT version
-            FROM ${tables.guild_emblems}
-            WHERE (guild_id = ${guildId} AND world_name = '${worldName}')
+            FROM \`${tables.guild_emblems}\`
+            WHERE (guild_id = ${esc(guildId)} AND world_name = '${esc(worldName)}')
         `);
 
     } catch (error: any) {
@@ -166,8 +180,8 @@ router.post('/upload', async (req: Request, res: Response, next: NextFunction) =
     try {
         // Insert or update emblem info
         await DBConn.query(`
-            REPLACE INTO ${tables.guild_emblems} (version, file_type, guild_id, world_name)
-            VALUES (${version}, '${imageType}', ${guildId}, '${worldName}')
+            REPLACE INTO \`${tables.guild_emblems}\` (version, file_type, guild_id, world_name)
+            VALUES (${esc(version)}, '${esc(imageType)}', ${esc(guildId)}, '${esc(worldName)}')
         `);
     } catch (error: any) {
         console.error(`emblem-upload: Error saving emblem info for guild_id ${guildId}`, error.message);
@@ -260,7 +274,7 @@ const isValidImage = async (image: Express.Multer.File, imageType: string) => {
  * @returns boolean
  */
 const isGifTransparent = async (buffer: Buffer): Promise<boolean> => {
-    if (Config.web.gif_emblem_transparency_limit === 100) {
+    if (Config.server.gif_emblem_transparency_limit === 100) {
         return false;
     }
 
@@ -294,7 +308,7 @@ const isGifTransparent = async (buffer: Buffer): Promise<boolean> => {
     }, 0);
 
     const perc = (total * 100) / (frames * WIDTH * HEIGHT);
-    return Config.web.gif_emblem_transparency_limit < perc;
+    return Config.server.gif_emblem_transparency_limit < perc;
 }
 
 
@@ -304,10 +318,10 @@ const isGifTransparent = async (buffer: Buffer): Promise<boolean> => {
  * @returns boolean
  */
 const isBmpTransparent = (buffer: Buffer): boolean => {
-    if (Config.web.bmp_emblem_transparency_limit === 100) {
+    if (Config.server.bmp_emblem_transparency_limit === 100) {
         return false;
     }
-    const transparencyThreshold = WIDTH * HEIGHT * Config.web.bmp_emblem_transparency_limit / 100;
+    const transparencyThreshold = WIDTH * HEIGHT * Config.server.bmp_emblem_transparency_limit / 100;
     const start = buffer.readInt32LE(10);
     const bitCount = buffer.readUInt16LE(28);
     let pixel: number;

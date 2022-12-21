@@ -6,10 +6,10 @@ export default {
         password: "ragnarok",           // SQL server password
         database: "ragnarok"                  // SQL database
     },
-    web: {
+    server: {
         port: 82,                           // Web server port
-        change_emblem_woe: true,            // Allow upload emblems during woe
+        worlds: ['YourServerHere'],                       // Allowed worlds
         bmp_emblem_transparency_limit: 80,  // Allow BMP emblems with transparency up to this limit (in %)
-        gif_emblem_transparency_limit: 80  // Allow GIF emblems with transparency up to this limit (in %)
+        gif_emblem_transparency_limit: 80   // Allow GIF emblems with transparency up to this limit (in %)
     }
 }

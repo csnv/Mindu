@@ -2,6 +2,7 @@ import { Request } from 'express';
 
 import DBConn from './conn';
 import tables from '../config/tables';
+import {escape as esc} from 'mysql';
 
 export default class Auth {
 
@@ -20,13 +21,14 @@ export default class Auth {
             return false;
 
         try {
-            const results = await DBConn.query(`
-                SELECT account_id 
-                FROM ${tables.login} 
-                WHERE (account_id = ${accountId}
-                    AND web_auth_token = '${authToken}'
-                    AND web_auth_token_enabled = '1')
-            `);
+            const query = `
+            SELECT \`account_id\` 
+            FROM \`${tables.login}\`
+            WHERE (\`account_id\` = ${esc(accountId)}
+                AND \`web_auth_token\` = ${esc(authToken)}
+                AND \`web_auth_token_enabled\` = '1')
+            `
+            const results = await DBConn.query(query);
 
             return results.length > 0;
 
@@ -37,7 +39,7 @@ export default class Auth {
     }
 
     /**
-     * Check if user is guildmaster of guild
+     * Check if user is guildmaster of given guild in request
      * @param req Request object
      * @returns User is guildmaster
      */
@@ -52,13 +54,14 @@ export default class Auth {
         }
 
         try {
-            const results = await DBConn.query(`
+            const query = `
                 SELECT account_id
-                FROM ${tables.login} 
-                LEFT JOIN using (char_id)
-                WHERE ${tables.login}.account_id = ${accountId}
-                    AND ${tables.login}.guild_id = ${guildId}
-            `);
+                FROM \`${tables.guild}\` LEFT JOIN \`${tables.char}\` using (char_id)
+                WHERE (\`${tables.char}\`.\`account_id\` = ${esc(accountId)}
+                    AND \`${tables.guild}\`.\`guild_id\` = ${esc(guildId)})
+                LIMIT 1
+            `;
+            const results = await DBConn.query(query);
 
             return results.length > 0;
         } catch(error) {

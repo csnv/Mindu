@@ -3,7 +3,7 @@ import { Router } from "express";
 import emblem from './emblem';
 import userconfig from './userconfig';
 import charconfig from './charconfig';
-import merchantstore from './merchandstore';
+import merchantstore from './merchantstore';
 
 const router = Router();
 

@@ -24,6 +24,6 @@ app.use(router);
 /**
  * Server setup and listening port
  */
-app.listen(Config.web.port, () => {
-    console.log(`Webserver running on port ${Config.web.port}`);
+app.listen(Config.server.port, () => {
+    console.log(`Webserver running on port ${Config.server.port}`);
 });

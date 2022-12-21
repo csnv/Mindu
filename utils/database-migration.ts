@@ -12,7 +12,7 @@ export class DatabaseMigration {
     static async createGuildEmblemsTable() {
         try {
             await DBConn.query(`
-            CREATE TABLE IF NOT EXISTS ${tables.guild_emblems} (
+            CREATE TABLE IF NOT EXISTS \`${tables.guild_emblems}\` (
                 world_name varchar(32) NOT NULL,
                 guild_id int(11) unsigned NOT NULL,
                 file_type varchar(255) NOT NULL,
@@ -29,7 +29,7 @@ export class DatabaseMigration {
     static async createUserConfigsTable() {
         try {
             await DBConn.query(`
-            CREATE TABLE IF NOT EXISTS ${tables.user_configs} (
+            CREATE TABLE IF NOT EXISTS \`${tables.user_configs}\` (
                 world_name varchar(32) NOT NULL,
                 account_id int(11) unsigned NOT NULL,
                 data longtext NOT NULL,
@@ -45,7 +45,7 @@ export class DatabaseMigration {
     static async createCharConfigsTable() {
         try {
             await DBConn.query(`
-            CREATE TABLE IF NOT EXISTS ${tables.char_configs} (
+            CREATE TABLE IF NOT EXISTS \`${tables.char_configs}\` (
                 world_name varchar(32) NOT NULL,
                 account_id int(11) unsigned NOT NULL,
                 char_id int(11) unsigned NOT NULL,
@@ -62,7 +62,7 @@ export class DatabaseMigration {
     static async createMerchantConfigsTable() {
         try {
             await DBConn.query(`
-            CREATE TABLE IF NOT EXISTS ${tables.merchant_configs} (
+            CREATE TABLE IF NOT EXISTS \`${tables.merchant_configs}\` (
                 world_name varchar(32) NOT NULL,
                 account_id int(11) unsigned NOT NULL,
                 char_id INT(11) UNSIGNED NOT NULL,

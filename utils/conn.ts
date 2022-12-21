@@ -1,4 +1,4 @@
-import mysql from 'mysql';
+import mysql, { escape } from 'mysql';
 
 import Config from '../config/webserver';
 
@@ -18,6 +18,13 @@ class DBConnection {
             port: Config.db.port,
             password: Config.db.password,
             database: Config.db.database
+        });
+
+        this.pool.getConnection((err: Error, connection: mysql.Connection) => {
+            if (err) {
+                console.error(err.message);
+                process.exit();
+            }
         });
     }
 
