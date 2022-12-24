@@ -12,7 +12,7 @@ For a more functional, feature rich, better security and better performance solu
 ## Requisites
 
 - Nodejs
-- csnv's webtoken plugin
+- [csnv's webtoken plugin](https://github.com/csnv/webtoken)
 - [This PR](https://github.com/HerculesWS/Hercules/pull/3183)
 
 ## Installation
