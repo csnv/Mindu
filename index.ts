@@ -1,3 +1,10 @@
+/**
+ * Express server initialization.
+ * Requires "multer" for parsing multipart/form-data
+ * 
+ * Configure in ./config at webserver entry
+ */
+
 import express, { Request, Response, NextFunction } from 'express';
 import router from './routes';
 import Config from './config/webserver';

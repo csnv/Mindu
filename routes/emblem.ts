@@ -11,6 +11,7 @@ import { ResponseMessage } from "../utils/response-message";
 import DBConn from '../utils/conn';
 import tables from "../config/tables";
 import httpStatus from "../models/httpStatus";
+import { hasParams } from "../utils/params";
 
 const MAX_EMBLEM_SIZE = 50_000; // Max size, in bytes
 const HEIGHT = 24; // Image max height
@@ -28,17 +29,9 @@ router.post('/download', async (req: Request, res: Response, next: NextFunction)
         return;
     }
 
-    let valid = true;
     const requiredParams = ['GDID', 'WorldName'];
 
-    for (let param of requiredParams) {
-        if (!req.body?.[param]) {
-            console.warn(`emblem-upload: No property '${param}' found in request.`);
-            valid = false;
-        }
-    }
-
-    if (!valid) {
+    if (!hasParams(req, requiredParams)) {
         ResponseMessage.sendError(res);
         return;
     }
@@ -95,7 +88,6 @@ router.post('/download', async (req: Request, res: Response, next: NextFunction)
     }
 
     ResponseMessage.sendBinary(res, buffer, mimeType);
-
 });
 
 /**
@@ -115,19 +107,10 @@ router.post('/upload', async (req: Request, res: Response, next: NextFunction) =
     }
 
     // Check required parameters
-    let valid = true;
     const requiredParams = ['GDID', 'WorldName', 'ImgType'];
-
-    for (let param of requiredParams) {
-        if (!req.body?.[param]) {
-            console.warn(`emblem-upload: No property '${param}' found in request.`);
-            valid = false;
-        }
-    }
+    let valid = hasParams(req, requiredParams);
 
     const image = (req.files as Express.Multer.File[])?.[0];
-    
-
     if (!image || image.fieldname !== 'Img') {
         console.warn("emblem-upload: No property 'Img' found in request.");
         valid = false;
@@ -163,11 +146,12 @@ router.post('/upload', async (req: Request, res: Response, next: NextFunction) =
 
     try {
         // Retrieve version from DB
-        results = await DBConn.query(`
+        const query = `
             SELECT version
             FROM \`${tables.guild_emblems}\`
-            WHERE (guild_id = ${esc(guildId)} AND world_name = '${esc(worldName)}')
-        `);
+            WHERE (guild_id = ${esc(guildId)} AND world_name = ${esc(worldName)})
+        `
+        results = await DBConn.query(query);
 
     } catch (error: any) {
         console.error(`emblem-upload: Error retrieving emblem info for guild_id ${guildId}`, error.message);
@@ -181,7 +165,7 @@ router.post('/upload', async (req: Request, res: Response, next: NextFunction) =
         // Insert or update emblem info
         await DBConn.query(`
             REPLACE INTO \`${tables.guild_emblems}\` (version, file_type, guild_id, world_name)
-            VALUES (${esc(version)}, '${esc(imageType)}', ${esc(guildId)}, '${esc(worldName)}')
+            VALUES (${esc(version)}, ${esc(imageType)}, ${esc(guildId)}, ${esc(worldName)})
         `);
     } catch (error: any) {
         console.error(`emblem-upload: Error saving emblem info for guild_id ${guildId}`, error.message);

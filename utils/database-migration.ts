@@ -1,7 +1,13 @@
 import DBConn from './conn'
 import tables from '../config/tables';
 
+/**
+ * Automatically create required tables on startup, if required
+ */
 export class DatabaseMigration {
+    /**
+     * Startup initialization
+     */
     static init() {
         this.createGuildEmblemsTable();
         this.createUserConfigsTable();
@@ -9,6 +15,9 @@ export class DatabaseMigration {
         this.createMerchantConfigsTable();
     }
 
+    /**
+     * Attempts to create emblems table
+     */
     static async createGuildEmblemsTable() {
         try {
             await DBConn.query(`
@@ -26,6 +35,9 @@ export class DatabaseMigration {
         }
     }
 
+    /**
+     * Attempts to create user related config table
+     */
     static async createUserConfigsTable() {
         try {
             await DBConn.query(`
@@ -42,6 +54,9 @@ export class DatabaseMigration {
         }
     }
 
+    /**
+     * Attempts to create character related config table
+     */
     static async createCharConfigsTable() {
         try {
             await DBConn.query(`
@@ -59,6 +74,9 @@ export class DatabaseMigration {
         }
     }
 
+    /**
+     * Attempts to create merchant store table
+     */
     static async createMerchantConfigsTable() {
         try {
             await DBConn.query(`

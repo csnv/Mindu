@@ -10,6 +10,7 @@ class DBConnection {
 
     /**
      * Create pool with config settings
+     * Pool connects, queries and closes connection automatically
      */
     constructor() {
         this.pool = mysql.createPool({
@@ -20,6 +21,7 @@ class DBConnection {
             database: Config.db.database
         });
 
+        // Test connectivity when initializing
         this.pool.getConnection((err: Error, connection: mysql.Connection) => {
             if (err) {
                 console.error(err.message);
