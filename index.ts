@@ -10,11 +10,13 @@ import router from './routes';
 import Config from './config/webserver';
 import multer from 'multer';
 import { DatabaseMigration } from './utils/database-migration';
+import { EmblemCacheManager } from './utils/emblem-cache-manager';
 
 const upload = multer();
 const app = express();
 
 DatabaseMigration.init();
+EmblemCacheManager.init();
 
 /**
  * Parse multipart/form-data to routes
