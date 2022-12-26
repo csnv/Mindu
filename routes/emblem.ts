@@ -24,6 +24,11 @@ const router = Router();
  * Downloads an emblem given a guild ID
  */
 router.post('/download', async (req: Request, res: Response, next: NextFunction) => {
+    if (!Config.routes.emblem) {
+        ResponseMessage.sendError(res);
+        return;
+    }
+
     if (!await Auth.isAuth(req)) {
         ResponseMessage.sendError(res);
         return;
@@ -31,7 +36,7 @@ router.post('/download', async (req: Request, res: Response, next: NextFunction)
 
     const requiredParams = ['GDID', 'WorldName'];
 
-    if (!hasParams(req, requiredParams)) {
+    if (!hasParams("emblem-download", req, requiredParams)) {
         ResponseMessage.sendError(res);
         return;
     }
@@ -96,6 +101,11 @@ router.post('/download', async (req: Request, res: Response, next: NextFunction)
  * Image must be GIF or BMP
  */
 router.post('/upload', async (req: Request, res: Response, next: NextFunction) => {
+    if (!Config.routes.emblem) {
+        ResponseMessage.sendError(res);
+        return;
+    }
+    
     if (!await Auth.isAuth(req)) {
         ResponseMessage.sendError(res);
         return;
@@ -108,7 +118,7 @@ router.post('/upload', async (req: Request, res: Response, next: NextFunction) =
 
     // Check required parameters
     const requiredParams = ['GDID', 'WorldName', 'ImgType'];
-    let valid = hasParams(req, requiredParams);
+    let valid = hasParams("emblem-upload", req, requiredParams);
 
     const image = (req.files as Express.Multer.File[])?.[0];
     if (!image || image.fieldname !== 'Img') {

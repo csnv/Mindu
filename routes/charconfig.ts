@@ -6,13 +6,19 @@ import { ResponseMessage } from "../utils/response-message";
 import DBConn from "../utils/conn";
 import tables from "../config/tables";
 import { hasParams } from "../utils/params";
+import Config from "../config/webserver";
 
 const router = Router();
 
 router.post('/load', async (req: Request, res: Response, next: NextFunction) => {
+    if (!Config.routes.userconfig) {
+        ResponseMessage.sendError(res);
+        return;
+    }
+
     const requiredParams = ['AID', 'WorldName'];
 
-    if (!hasParams(req, requiredParams)) {
+    if (!hasParams("charconfig-load", req, requiredParams)) {
         ResponseMessage.sendError(res);
         return;
     }
@@ -46,6 +52,11 @@ router.post('/load', async (req: Request, res: Response, next: NextFunction) => 
 });
 
 router.post('/save', async (req: Request, res: Response, next: NextFunction) => {
+    if (!Config.routes.userconfig) {
+        ResponseMessage.sendError(res);
+        return;
+    }
+
     if (!await Auth.isAuth(req)) {
         ResponseMessage.sendError(res);
         return;
@@ -54,7 +65,7 @@ router.post('/save', async (req: Request, res: Response, next: NextFunction) => 
     // Check required parameters
     const requiredParams = ['AID', 'GID', 'WorldName', 'data'];
 
-    if (!hasParams(req, requiredParams)) {
+    if (!hasParams("charconfig-save", req, requiredParams)) {
         ResponseMessage.sendError(res);
         return;
     }
