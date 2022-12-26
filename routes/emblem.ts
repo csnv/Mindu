@@ -12,12 +12,13 @@ import DBConn from '../utils/conn';
 import tables from "../config/tables";
 import httpStatus from "../models/httpStatus";
 import { hasParams } from "../utils/params";
+import { EmblemCacheManager } from "../utils/emblem-cache-manager";
+
+const router = Router();
 
 const MAX_EMBLEM_SIZE = 50_000; // Max size, in bytes
 const HEIGHT = 24; // Image max height
 const WIDTH = 24; // Image max width
-
-const router = Router();
 
 /**
  * /emblem/download
@@ -64,6 +65,7 @@ router.post('/download', async (req: Request, res: Response, next: NextFunction)
     }
     
     const fileType = results[0].file_type;
+    const version = results[0].version;
     const contentByFileType: {[key: string]: string} = {
         'BMP': 'image/bmp',
         'GIF': 'image/gif'
@@ -82,11 +84,9 @@ router.post('/download', async (req: Request, res: Response, next: NextFunction)
         return;
     }
     
-    const filePath = `./emblems/${worldName}${guildId}.emblem`;
-    let buffer; 
-    try {
-        buffer = await readFile(filePath);
-    } catch(error) {
+    
+    const buffer = await getEmblem(worldName, guildId, version);
+    if (!buffer) {
         console.error(`emblem-download: No image found for ${guildId} in emblems folder.`);
         ResponseMessage.sendError(res, httpStatus.NOT_FOUND);
         return;
@@ -94,6 +94,34 @@ router.post('/download', async (req: Request, res: Response, next: NextFunction)
 
     ResponseMessage.sendBinary(res, buffer, mimeType);
 });
+
+/**
+ * Returns emblem from cache or filesystem, if necessary
+ * @param worldName Requested world name
+ * @param guildId Requested guild id 
+ * @param version Requested version
+ * @returns Guild emblem buffer
+ */
+const getEmblem = async (worldName: string, guildId: number, version: number): Promise<Buffer | null> => {
+    const emblemPath = `${worldName}/${guildId}/${version}`;
+    const cachedEmblem = EmblemCacheManager.get(emblemPath);
+
+    if (cachedEmblem) {
+        return cachedEmblem;
+    }
+
+    try {
+        const filePath = `./emblems/${worldName}/${guildId}_${version}.emblem`;
+        let buffer = await readFile(filePath);
+        EmblemCacheManager.set(emblemPath, buffer);
+
+        return buffer;
+
+    } catch(error) {
+        console.log
+        return null;
+    }
+}
 
 /**
  * /emblem/upload
@@ -105,7 +133,7 @@ router.post('/upload', async (req: Request, res: Response, next: NextFunction) =
         ResponseMessage.sendError(res);
         return;
     }
-    
+
     if (!await Auth.isAuth(req)) {
         ResponseMessage.sendError(res);
         return;
@@ -187,7 +215,8 @@ router.post('/upload', async (req: Request, res: Response, next: NextFunction) =
         if (!existsSync(`./emblems/${worldName}`))
             mkdirSync(`./emblems/${worldName}`, { recursive: true });
         // Finally, save file to storage. Guild id is used as file name because I'm lazy and versions don't matter
-        await writeFile(`./emblems/${worldName}${guildId}.emblem`, image.buffer);
+        await writeFile(`./emblems/${worldName}/${guildId}_${version}.emblem`, image.buffer);
+        EmblemCacheManager.set(`${worldName}/${guildId}/${version}`, image.buffer);
 
     } catch (error: any) {
         console.error(`emblem-upload: Error saving emblem file for guild_id ${guildId}`, error.message);
@@ -353,6 +382,5 @@ const isBmpTransparent = (buffer: Buffer): boolean => {
     }
     return false;
 }
-
 
 export default router;
