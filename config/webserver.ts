@@ -11,5 +11,12 @@ export default {
         worlds: ['YourServerHere'],                       // Allowed worlds
         bmp_emblem_transparency_limit: 80,  // Allow BMP emblems with transparency up to this limit (in %)
         gif_emblem_transparency_limit: 80   // Allow GIF emblems with transparency up to this limit (in %)
+    },
+    /* Web server enabled routes */
+    routes: {
+            userconfig: true,                   
+            charconfig: true,
+            emblem: true,
+            merchantstore: true
     }
 }

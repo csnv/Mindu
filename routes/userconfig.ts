@@ -6,6 +6,7 @@ import { ResponseMessage } from "../utils/response-message";
 import DBConn from "../utils/conn";
 import tables from "../config/tables";
 import { hasParams } from "../utils/params";
+import Config from "../config/webserver";
 
 const router = Router();
 
@@ -14,9 +15,14 @@ const router = Router();
  * Downloads user account's settings
  */
 router.post('/load', async (req: Request, res: Response, next: NextFunction) => {
+    if (!Config.routes.userconfig) {
+        ResponseMessage.sendError(res);
+        return;
+    }
+
     const requiredParams = ['AID', 'WorldName'];
 
-    if (!hasParams(req, requiredParams)) {
+    if (!hasParams("userconfig-load", req, requiredParams)) {
         ResponseMessage.sendError(res);
         return;
     }
@@ -56,6 +62,11 @@ router.post('/load', async (req: Request, res: Response, next: NextFunction) => 
  * Saves user account's settings in JSON format
  */
 router.use('/save', async (req: Request, res: Response, next: NextFunction) => {
+    if (!Config.routes.userconfig) {
+        ResponseMessage.sendError(res);
+        return;
+    }
+
     if (!await Auth.isAuth(req)) {
         ResponseMessage.sendError(res);
         return;
@@ -64,7 +75,7 @@ router.use('/save', async (req: Request, res: Response, next: NextFunction) => {
     // Check required parameters
     const requiredParams = ['AID', 'WorldName', 'data'];
 
-    if (!hasParams(req, requiredParams)) {
+    if (!hasParams("userconfig-save", req, requiredParams)) {
         ResponseMessage.sendError(res);
         return;
     }
