@@ -33,24 +33,24 @@ router.post('/load', async (req: Request, res: Response, next: NextFunction) => 
     let results;
 
     try {
-        results = await DBConn.query(`
+        const query = `
             SELECT \`data\`
             FROM \`${tables.user_configs}\`
             WHERE (\`account_id\` = ${esc(accountId)} AND \`world_name\` = ${esc(worldName)})
             LIMIT 1
-        `);
+        `;
+        results = await DBConn.query(query);
     } catch (error: any) {
         console.error(`userconfig-load: Error retrieving data for account id ${accountId}`, error.message);
         ResponseMessage.sendError(res);
         return;
     }
 
-    const data = results.length > 0 ? results[0].data : "";
-    const parsedData = JSON.parse(data);
+    const data = results.length > 0 ? JSON.parse(results[0].data) : {};
 
     const response = {
         Type: 1,
-        ...parsedData // Will be empty if there's no registry
+        ...data // Will be empty if there's no registry
     };
 
     ResponseMessage.sendJSON(res, response);

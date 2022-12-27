@@ -1,4 +1,5 @@
 export default {
+    /* Main server database connection */
     db: {
         port: 3306,                         // SQL server port
         ip: "127.0.0.1",                    // SQL server IP
@@ -6,6 +7,7 @@ export default {
         password: "ragnarok",           // SQL server password
         database: "ragnarok"                  // SQL database
     },
+    /* Web server specifics */
     server: {
         port: 82,                           // Web server port
         worlds: ['YourServerHere'],                       // Allowed worlds
