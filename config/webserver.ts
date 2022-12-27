@@ -14,9 +14,9 @@ export default {
     },
     /* Web server enabled routes */
     routes: {
-            userconfig: true,                   
-            charconfig: true,
-            emblem: true,
-            merchantstore: true
+        userconfig: true,
+        charconfig: true,
+        emblem: true,
+        merchantstore: true
     }
 }

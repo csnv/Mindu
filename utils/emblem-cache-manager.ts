@@ -1,4 +1,4 @@
-import { EmblemCache, EmblemCacheGroup } from "../models/emblemCache";
+import { EmblemCacheGroup } from "../models/emblemCache";
 
 /**
  * Caching of emblems in memory
