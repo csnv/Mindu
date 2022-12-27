@@ -23,14 +23,16 @@ For a more functional, feature rich, better security and better performance solu
 > Webserver running on port 82
 
 ## Features
+- Token authentication.
 - Emblem upload/download with transparency checks for both BMP and GIF formats.
 - User config and char config saving/loading.
-
-## Pending
-- Merchant store functionality
+- Merchant store functionality.
 
 ## Contributing
 - Clone the repo.
 - Make some changes.
 - Upload to your repo.
 - Open a pull request.
+
+## Ideas, suggestions, bugs...
+Please use the issues tab here in Github, your feedback is appreciated!

@@ -6,17 +6,15 @@ import { EmblemCacheGroup } from "../models/emblemCache";
 export namespace EmblemCacheManager {
     // Main cache
     const cache: EmblemCacheGroup = {};
-    // Last time cache was cleaned
-    const cacheLastCheck = 0;
     // Remove cached emblems from memory if not requested in a certain time
-    const CACHE_REMOVAL_TIME = 15 * 1000; // 15 minutes
+    const CACHE_REMOVAL_TIME = 10 * 60 * 1000; // 10 minutes
     // Interval time to perform cleanups
-    const CACHE_CLEAN_INTERVAL =  60 * 1000; // 1 hour
+    const CACHE_CLEAN_INTERVAL =  5 * 60 * 1000; // 5 minutes
 
     /**
      * Initialize interval for cleaning up cache
      */
-    export const init = ():void => {
+    export const init = (): void => {
         setInterval(() => clean(), CACHE_CLEAN_INTERVAL);
     };
 
@@ -55,10 +53,6 @@ export namespace EmblemCacheManager {
      */
     const clean = (): void => {
         const now = new Date().getTime();
-
-        if (cacheLastCheck + CACHE_CLEAN_INTERVAL > now)
-            return; // Still not the time to do cleanups
-
         const keys = Object.keys(cache);
         let deleted = 0;
 
