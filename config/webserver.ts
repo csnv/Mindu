@@ -9,7 +9,7 @@ export default {
     },
     /* Web server specifics */
     server: {
-        port: 82,                           // Web server port
+        port: 8082,                         // Web server port, must be greater than 3000 in *nix systems, unless root
         worlds: ['YourServerHere'],                       // Allowed worlds
         bmp_emblem_transparency_limit: 80,  // Allow BMP emblems with transparency up to this limit (in %)
         gif_emblem_transparency_limit: 80   // Allow GIF emblems with transparency up to this limit (in %)
