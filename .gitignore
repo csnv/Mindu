@@ -8,3 +8,6 @@ dist/**/*.*
 # IDE/Editor/Settings folders
 .vscode/*
 !.vscode/launch.json
+
+# Files
+error.log

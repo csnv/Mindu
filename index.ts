@@ -11,6 +11,7 @@ import Config from './config/webserver';
 import multer from 'multer';
 import { DatabaseMigration } from './utils/database-migration';
 import { EmblemCacheManager } from './utils/emblem-cache-manager';
+import { appendFile } from 'fs/promises';
 
 const upload = multer();
 const app = express();
@@ -36,3 +37,18 @@ app.use(router);
 app.listen(Config.server.port, () => {
     console.log(`Webserver running on port ${Config.server.port}`);
 });
+
+/**
+ * Log any other uncaught exception
+ */
+process.on('uncaughtException', async (e) => {
+    const date = new Date().toISOString();
+    const data = `[${date}]\n${e}\n`;
+    
+    try {
+        await appendFile("error.log", data);
+        console.error("An error occured. Check error.log for details.");
+    } catch (e) {
+        console.error("An error occured. Log could not be saved: " + e);
+    }
+})
