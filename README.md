@@ -1,3 +1,5 @@
+> [!WARNING]  
+> Hercules already has support for services. This project is no longer needed and is discontinued.
 
 # Mindu
 
